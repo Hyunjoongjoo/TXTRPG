@@ -6,10 +6,12 @@ using System.Threading.Tasks;
 
 namespace TXTRPG
 {
-    class Program
+    internal class Program
     {
         static void Main(string[] args)
         {
+            GameManager gameManager = new GameManager();
+            gameManager.GameStart();
 
         }
     }

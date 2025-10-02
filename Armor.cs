@@ -10,16 +10,20 @@ namespace TXTRPG
     { 
         Helmet, Chest, Gloves, Boots, Shield 
     }
-    class Armor : Item , IEquippable
+    public class Armor : Item , IEquippable , IWearableLevel , IQuantity
     {
         public int DefPlus {  get; private set; }
+        public int SpeedMinus { get; private set; }
+        public int WearableLevel { get; private set; }
+        public int Quantity { get; set; } = 1;
+        public int MaxQuantity { get; private set; } = 5;
 
-        public void Equip()
+        public void Equip(Character player)
         {
             
         }
 
-        public void Unequip()
+        public void Unequip(Character player)
         {
             
         }

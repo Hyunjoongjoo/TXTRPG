@@ -6,14 +6,24 @@ using System.Threading.Tasks;
 
 namespace TXTRPG
 {
+    public interface IQuantity
+    {
+        int Quantity { get; set; }
+        int MaxQuantity { get; }
+    }
+    public interface IWearableLevel
+    {
+        int WearableLevel { get; }
+    }
     public interface IUsable
     {
-        void Use();
+        void Use(Character player);
     }
     public interface IEquippable
     {
-        void Equip();
-        void Unequip();
+
+        void Equip(Character player);
+        void Unequip(Character player);
     }
     public interface ISpeed
     {

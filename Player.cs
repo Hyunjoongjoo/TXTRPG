@@ -6,42 +6,87 @@ using System.Threading.Tasks;
 
 namespace TXTRPG
 {
-    class Player : Character
+    public class Player : Character
     {
-        
-        public int Level { get; private set; }
-        public int Exp { get; private set; }
-        public int MaxExp { get; private set; }
-        public int Gold { get; private set; }
+        public int Exp { get; private set; } = 0;
+        public int MaxExp { get; private set; } = 100;
+        public int Gold { get; private set; } = 10;
         public Dictionary<string, Item> InventoryDic { get; private set; } //아이템 검색
         public LinkedList<Item> InventoryList { get; private set; } //아이템 순서 관리
+        public Armor ArmorEqip { get; private set; }
+        public Weapon WeaponEqip { get; private set; }
         public Player(string name) : base(name)
         {
-            
-            Level = 1;
-            Exp = 0;
-            MaxExp = 100;
-            Gold = 10;
             Hp = 100;
             MaxHp = 100;
             Att = 20;
+            Speed = 100;
+            CriChance = 0.2f;
+            CriMultiplier = 1.3f;
+            InventoryDic = new Dictionary<string, Item>();
+            InventoryList = new LinkedList<Item>();
+        }
+        
+        public void UseItem(Item item)
+        {
 
         }
-        protected override int Damage()
+        public void GetReward(Monster monster)
         {
-            Random ran = GameManager.GetRandom();
-            float damage = Att;
-            if (ran.NextDouble() < CriChance)
+            Exp += monster.ExpReward;
+            Gold += monster.GoldReward;
+            while (Exp >=MaxExp)
             {
-                damage *= CriMultiplier;
-                Console.WriteLine("크리티컬 히트!");
+                Exp -= MaxExp;
+                LevelUp();
             }
-            return (int)damage;
         }
-        public override void Attack(Character target)
+        public void LevelUp()
+        {
+            Level++;
+            MaxExp += 10;
+            MaxHp += 10;
+            Hp = MaxHp;
+            Att += 5;
+            Def += 1;
+            Speed += 10;
+            Console.WriteLine("레벨업!\n공격력,방어력,최대 체력,공격속도가 소폭 상승합니다.");
+            Console.WriteLine("Press the button");
+            Console.ReadKey(true);
+        }
+        public void EqipItem(string itemName)
+        {
+            if(InventoryDic.ContainsKey(itemName))
+            {
+                Item item = InventoryDic[itemName];
+                if (item is IEquippable eqip)
+                {
+                    eqip.Equip(this);
+                    Console.WriteLine($"{itemName} 착용");
+                }
+                else
+                {
+                    Console.WriteLine($"{itemName}은 착용 가능한 아이템이 아닙니다.");
+                }
+            }
+            else
+            {
+                Console.WriteLine($"착용 가능한 장비가 인벤토리에 없습니다.");
+            }
+        }
+        public void UneqipItem(string itemName)
+        {
+            Item item = InventoryDic[itemName];
+            if (item is IEquippable uneqip)
+            {
+                uneqip.Unequip(this);
+                Console.WriteLine($"{itemName} 착용 해제");
+            }
+        }
+        public override void Attack(Character monsterTarget) 
         {
             int damage = Damage();
-            target.TakeDamage(damage);
+            monsterTarget.TakeDamage(damage);
         }
     }
 }
