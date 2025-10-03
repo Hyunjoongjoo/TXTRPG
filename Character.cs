@@ -22,7 +22,12 @@ namespace TXTRPG
         {
             Name = name;
         }
-        protected int Damage()
+        public void Heal(int healAmount)//회복
+        {
+            Hp += healAmount;
+            if (Hp > MaxHp) {  MaxHp = Hp; }
+        }
+        protected int Damage()//공격력
         {
             Random ran = GameManager.GetRandom();
             float damage = Att;
@@ -33,7 +38,7 @@ namespace TXTRPG
             }
             return (int)damage;
         }
-        public void TakeDamage(int damage)
+        public void TakeDamage(int damage)//최종 데미지 계산
         {
             int finalDamage = damage - Def;
             if (finalDamage < 0)
