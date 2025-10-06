@@ -25,7 +25,7 @@ namespace TXTRPG
             }
             
         }
-        public void RemoveItem(string itemName)
+        public void RemoveItem(string itemName) //아이템 제거
         {
             if (items.ContainsKey(itemName))
             {

@@ -25,9 +25,9 @@ namespace TXTRPG
         {
             Hp += Level * 10;
             MaxHp = Hp;
-            Att += Level * 5;
-            Def += Level * 2;
-            Speed += Level * 2;
+            BaseAtt += Level * 5;
+            BaseDef += Level * 2;
+            BaseSpeed += Level * 2;
             ExpReward = 0 * Level;
             GoldReward = 0 * Level;
         }
@@ -38,8 +38,8 @@ namespace TXTRPG
         {
             Level = GameManager.GetRandom().Next(1, 3);
             Hp = MaxHp = 0;
-            Att = 0;
-            Def = 0;
+            BaseAtt = 0;
+            BaseDef = 0;
             LevelStat();
             
         }
@@ -55,16 +55,16 @@ namespace TXTRPG
         {
             Level = GameManager.GetRandom().Next(1, 3);
             Hp = MaxHp = 0;
-            Att = 0;
-            Def = 0;
+            BaseAtt = 0;
+            BaseDef = 0;
             LevelStat();
         }
 
         public override void Abililty(Character monster, Character player)
         {
             Heal(2);
-            Speed += 5;
-            if (Speed > 100) {Speed = 100;}
+            BaseSpeed += 5;
+            if (Speed > 100) { BaseSpeed = 100;}
         }
     }
     public class Orc : Monster
@@ -73,8 +73,8 @@ namespace TXTRPG
         {
             Level = GameManager.GetRandom().Next(1, 3);
             Hp = MaxHp = 0;
-            Att = 0;
-            Def = 0;
+            BaseAtt = 0;
+            BaseDef = 0;
             LevelStat();
 
         }
@@ -82,8 +82,8 @@ namespace TXTRPG
         public override void Abililty(Character monster, Character player)
         {
             Heal(3);
-            Att += 5;
-            if (Att > 100) { Att = 100;}
+            BaseAtt += 5;
+            if (Att > 100) { BaseAtt = 100;}
         }
     }
     public class Golem : Monster
@@ -92,16 +92,16 @@ namespace TXTRPG
         {
             Level = GameManager.GetRandom().Next(1, 3);
             Hp = MaxHp = 0;
-            Att = 0;
-            Def = 0;
+            BaseAtt = 0;
+            BaseDef = 0;
             LevelStat();
         }
 
         public override void Abililty(Character monster, Character player)
         {
             Heal(4);
-            Def += 5;
-            if (Def > 100) {Def = 100;}
+            BaseDef += 5;
+            if (Def > 100) { BaseDef = 100;}
         }
     }
     public class Doppelganger : Monster
@@ -110,18 +110,18 @@ namespace TXTRPG
         {
             Level = GameManager.GetRandom().Next(1, 3);
             Hp = MaxHp = 0;
-            Att = 0;
-            Def = 0;
+            BaseAtt = 0;
+            BaseDef = 0;
             LevelStat();
         }
 
         public override void Abililty(Character monster, Character player)
         {
             Heal(5);
-            Att += player.Att / 2; //플에이어 능력치의 반만큼 추가
-            if (Att > 200) { Att = 200;}
-            Def += player.Def / 2;
-            if (Def > 200) { Def = 200;}
+            BaseAtt += player.Att / 2; //플에이어 능력치의 반만큼 추가
+            if (Att > 200) { BaseAtt = 200;}
+            BaseDef += player.Def / 2;
+            if (Def > 200) { BaseDef = 200;}
         }
         public class Dragon : Monster
         {
@@ -129,8 +129,8 @@ namespace TXTRPG
             {
                 Level = GameManager.GetRandom().Next(1, 3);
                 Hp = MaxHp = 0;
-                Att = 0;
-                Def = 0;
+                BaseAtt = 0;
+                BaseDef = 0;
                 LevelStat();
             }
 

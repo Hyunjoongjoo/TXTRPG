@@ -13,11 +13,14 @@ namespace TXTRPG
         public int Level { get; protected set; } = 1;
         public int Hp { get; protected set; }
         public int MaxHp { get; protected set; }
-        public int Att { get; protected set; }
-        public int Def { get; protected set; }
-        public int Speed { get; protected set; } = 10;
+        public int BaseAtt { get; protected set; }
+        public int BaseDef { get; protected set; }
+        public int BaseSpeed { get; protected set; } = 10;
         public float CriChance { get; protected set; } = 0.1f; //크리티컬 확률 
         public float CriMultiplier { get; protected set; } = 1.25f;//크리티컬 배율
+        public virtual int Att => BaseAtt;
+        public virtual int Def => BaseDef;
+        public virtual int Speed => BaseSpeed;
         protected Character(string name)
         {
             Name = name;

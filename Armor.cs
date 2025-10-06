@@ -17,15 +17,21 @@ namespace TXTRPG
         public int WearableLevel { get; private set; }
         public int Quantity { get; set; } = 1;
         public int MaxQuantity { get; private set; } = 5;
-
-        public void Equip(Character player)
+        public Armor(string name, string info, int defPlus, int speedMinus,int price) : base(name, info, price)
         {
-            
+            DefPlus = defPlus;
+            SpeedMinus = speedMinus;
+
         }
 
-        public void Unequip(Character player)
+        public void Equip(Player player)
         {
-            
+            player.EqipItem(this.Name);
+        }
+
+        public void Unequip(Player player)
+        {
+            player.UneqipItem(this.Name);
         }
     }
 }

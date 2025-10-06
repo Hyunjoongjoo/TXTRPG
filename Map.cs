@@ -8,11 +8,12 @@ namespace TXTRPG
 {
     public interface ISafeZone
     {
-
+        void Trade(Player player);
+        void Save(Player player);
     }
     public interface IDangerousZone
     {
-
+        void Battle(Player player);
     }
     public abstract class Map
     {
@@ -23,21 +24,50 @@ namespace TXTRPG
     {
         public override void Enter(Player player)
         {
-            throw new NotImplementedException();
+            
+        }
+
+        public void Rest(Player player)
+        {
+            
+        }
+
+        public void Save(Player player)
+        {
+            
+        }
+
+        public void Trade(Player player)
+        {
+            
         }
     }
     public class Shop : Map, ISafeZone
     {
         public override void Enter(Player player)
         {
-            throw new NotImplementedException();
+            
+        }
+        public void Save(Player player)
+        {
+            
+        }
+
+        public void Trade(Player player)
+        {
+            
         }
     }
     public class BattleGround : Map, IDangerousZone
     {
+        public void Battle(Player player)
+        {
+            
+        }
+
         public override void Enter(Player player)
         {
-            throw new NotImplementedException();
+            
         }
     }
 }

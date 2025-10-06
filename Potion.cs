@@ -10,7 +10,11 @@ namespace TXTRPG
     {
         public int Quantity { get; set; } = 1;
         public int MaxQuantity { get; private set; } = 99;
-        public void Use(Character player)
+        public Potion(string name, string info, int price) : base(name, info, price)
+        {
+
+        }
+        public void Use(Player player)
         {
             if (Quantity > 0)
             {

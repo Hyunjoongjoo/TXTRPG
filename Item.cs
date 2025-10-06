@@ -17,22 +17,29 @@ namespace TXTRPG
     }
     public interface IUsable
     {
-        void Use(Character player);
+        void Use(Player player);
     }
     public interface IEquippable
     {
-
-        void Equip(Character player);
-        void Unequip(Character player);
+        void Equip(Player player);
+        void Unequip(Player player);
     }
-    public interface ISpeed
-    {
-        void AttSpeed();
-    }
+    
     public abstract class Item
     {
         public string Name { get; protected set; }
+        public string Info { get; protected set; }
         public int Price { get; protected set; }
+        public Item(string name, string info, int price)
+        {
+            Name = name;
+            Info = info;
+            Price = price;
+        } 
+        public override string ToString()
+        {
+            return ($"{Name} - {Info} - {Price}G");
+        }
 
     }
 }
