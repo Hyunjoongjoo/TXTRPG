@@ -6,24 +6,7 @@ using System.Threading.Tasks;
 
 namespace TXTRPG
 {
-    public interface IQuantity
-    {
-        int Quantity { get; set; }
-        int MaxQuantity { get; }
-    }
-    public interface IWearableLevel
-    {
-        int WearableLevel { get; }
-    }
-    public interface IUsable
-    {
-        void Use(Player player);
-    }
-    public interface IEquippable
-    {
-        void Equip(Player player);
-        void Unequip(Player player);
-    }
+   
     
     public abstract class Item
     {

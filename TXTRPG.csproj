@@ -43,21 +43,32 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Armor.cs" />
-    <Compile Include="Character.cs" />
-    <Compile Include="GameManager.cs" />
-    <Compile Include="Inventory.cs" />
-    <Compile Include="Item.cs" />
-    <Compile Include="Map.cs" />
-    <Compile Include="Monster.cs" />
-    <Compile Include="Player.cs" />
-    <Compile Include="Potion.cs" />
+    <Compile Include="Manager\BattleManager.cs" />
+    <Compile Include="Manager\ShopManager.cs" />
+    <Compile Include="Items\ItemRepository.cs" />
+    <Compile Include="Items\Armor.cs" />
+    <Compile Include="Maps\BattleGround.cs" />
+    <Compile Include="Characters\Character.cs" />
+    <Compile Include="Manager\GameManager.cs" />
+    <Compile Include="Interfaces\IItem.cs" />
+    <Compile Include="Interfaces\IMap.cs" />
+    <Compile Include="Characters\Inventory.cs" />
+    <Compile Include="Items\Item.cs" />
+    <Compile Include="Enums\ItemEnums.cs" />
+    <Compile Include="Maps\Map.cs" />
+    <Compile Include="Characters\Monster.cs" />
+    <Compile Include="Characters\Player.cs" />
+    <Compile Include="Items\Potion.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Weapon.cs" />
+    <Compile Include="Maps\Village.cs" />
+    <Compile Include="Maps\Shop.cs" />
+    <Compile Include="Items\Weapon.cs" />
+    <Compile Include="Manager\VillageManager.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

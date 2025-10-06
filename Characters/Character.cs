@@ -15,7 +15,7 @@ namespace TXTRPG
         public int MaxHp { get; protected set; }
         public int BaseAtt { get; protected set; }
         public int BaseDef { get; protected set; }
-        public int BaseSpeed { get; protected set; } = 10;
+        public int BaseSpeed { get; protected set; }
         public float CriChance { get; protected set; } = 0.1f; //크리티컬 확률 
         public float CriMultiplier { get; protected set; } = 1.25f;//크리티컬 배율
         public virtual int Att => BaseAtt;
@@ -28,7 +28,7 @@ namespace TXTRPG
         public void Heal(int healAmount)//회복
         {
             Hp += healAmount;
-            if (Hp > MaxHp) {  MaxHp = Hp; }
+            if (Hp > MaxHp) {  Hp = MaxHp; }
         }
         protected int Damage()//공격력
         {
@@ -37,7 +37,7 @@ namespace TXTRPG
             if (ran.NextDouble() < CriChance)
             {
                 damage *= CriMultiplier;
-                Console.WriteLine("크리티컬 히트!");
+                Console.WriteLine("\n크리티컬 히트!!!");
             }
             return (int)damage;
         }
@@ -51,6 +51,17 @@ namespace TXTRPG
             Hp -= finalDamage;
             if (Hp < 0) { Hp = 0; }
         }
-        public abstract void Attack(Character target);
+        public virtual void Attack(Character target)//현재는 동일하기에 일단 버추얼로 확장성을 고려해서 변경
+        {
+            Console.Clear();
+            Console.WriteLine($"{Name}의 턴");
+            int beforeHp = target.Hp;//공격 전 체력
+            int damage = Damage();
+            target.TakeDamage(damage); 
+            int result = beforeHp - target.Hp;//실제 깎인 양 계산
+            Console.WriteLine($"\n{Name}의 공격! {target.Name}에게 {result}만큼 데미지");
+            Console.WriteLine("\nPress the button");
+            Console.ReadKey(true);
+        }
     }
 }
