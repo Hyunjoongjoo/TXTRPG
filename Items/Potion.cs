@@ -21,6 +21,15 @@ namespace TXTRPG
         }
         public void Use(Player player)
         {
+            //최대 체력일때 사용 불가
+            if (player.Hp >= player.MaxHp)
+            {
+                Console.Clear();
+                Console.WriteLine("현재 체력이 이미 최대입니다. 포션을 사용할 수 없습니다!");
+                Console.WriteLine("\nPress the button");
+                Console.ReadKey(true);
+                return;
+            }
             if (Quantity > 0)
             {
                 int healAmount = (int)(player.MaxHp * HealPercent);

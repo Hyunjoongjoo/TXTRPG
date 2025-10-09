@@ -36,7 +36,7 @@ namespace TXTRPG
     {
         public Slime(string name) : base(name)
         {
-            Level = GameManager.GetRandom().Next(0, 3);
+            Level = GameManager.GetRandom().Next(1, 3);
             Hp = MaxHp = 80;
             BaseAtt = 10;
             BaseDef = 3;
@@ -58,7 +58,7 @@ namespace TXTRPG
     {
         public Goblin(string name) : base(name)
         {
-            Level = GameManager.GetRandom().Next(0, 3);
+            Level = GameManager.GetRandom().Next(1, 3);
             Hp = MaxHp = 100;
             BaseAtt = 25;
             BaseDef = 5;
@@ -82,7 +82,7 @@ namespace TXTRPG
     {
         public Orc(string name) : base(name)
         {
-            Level = GameManager.GetRandom().Next(0, 3);
+            Level = GameManager.GetRandom().Next(1, 3);
             Hp = MaxHp = 120;
             BaseAtt = 40;
             BaseDef = 7;
@@ -107,7 +107,7 @@ namespace TXTRPG
     {
         public Golem(string name) : base(name)
         {
-            Level = GameManager.GetRandom().Next(0, 3);
+            Level = GameManager.GetRandom().Next(1, 3);
             Hp = MaxHp = 150;
             BaseAtt = 50;
             BaseDef = 12;
@@ -131,7 +131,7 @@ namespace TXTRPG
     {
         public Doppelganger(string name) : base(name)
         {
-            Level = GameManager.GetRandom().Next(0, 3);
+            Level = GameManager.GetRandom().Next(1, 3);
             Hp = MaxHp = 180;
             BaseAtt = 50;
             BaseDef = 10;
@@ -157,7 +157,7 @@ namespace TXTRPG
         {
             public Dragon(string name) : base(name)
             {
-                Level = GameManager.GetRandom().Next(0, 3);
+                Level = GameManager.GetRandom().Next(1, 3);
                 Hp = MaxHp = 200;
                 BaseAtt = 50;
                 BaseDef = 15;

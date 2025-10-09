@@ -127,11 +127,17 @@ namespace TXTRPG
                 var p = item as Potion;
                 //타입에 따라
                 if (w != null)
+                {
                     Console.WriteLine($"{i + 1}. {w.Name} - {w.Info} - 레벨제한 : {w.WearableLevel} - 공격력 : {w.AttPlus} - 속도감소 : {w.SpeedMinus} - 가격 : {w.Price} G\n");
+                }
                 else if (a != null)
+                {
                     Console.WriteLine($"{i + 1}. {a.Name} - {a.Info}  - 레벨제한 : {a.WearableLevel} - 방어력 : {a.DefPlus} - 속도감소 : {a.SpeedMinus} - 가격 : {a.Price} G\n");
+                }
                 else if (p != null)
+                {
                     Console.WriteLine($"{i + 1}. {item.Name} - {item.Info} - 가격 : {item.Price} G\n");
+                }
                 else
                 {
                     Console.WriteLine($"{i + 1}. {item.Name} - {item.Info} - 가격 : {item.Price} G\n");
@@ -146,7 +152,13 @@ namespace TXTRPG
                 return;
 
             T temp = itemList[choice - 1];
-
+            //같은 이름의 장비는 구매불가
+            if (!(temp is Potion) && player.InventoryDic.ContainsKey(temp.Name))
+            {
+                Console.Clear();
+                Console.WriteLine("이미 소유 중인 장비입니다!");
+                return;
+            }
             if (!player.SpendGold(temp.Price))
             {
                 Console.Clear();
@@ -168,7 +180,9 @@ namespace TXTRPG
             }
             else
             {
-                boughtItem = new Potion(potion.Name, potion.Info, potion.Price, potion.HealPercent);
+                Potion newPotion = new Potion(potion.Name, potion.Info, potion.Price, potion.HealPercent);
+                newPotion.Quantity = 1;
+                boughtItem = newPotion;
             }
             //포션만 수량 누적
             player.AddItem(boughtItem);
