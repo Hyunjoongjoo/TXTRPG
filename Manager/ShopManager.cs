@@ -128,15 +128,15 @@ namespace TXTRPG
                 //타입에 따라
                 if (w != null)
                 {
-                    Console.WriteLine($"{i + 1}. {w.Name} - {w.Info} - 레벨제한 : {w.WearableLevel} - 공격력 : {w.AttPlus} - 속도감소 : {w.SpeedMinus} - 가격 : {w.Price} G\n");
+                    Console.WriteLine($"{i + 1}. {w.ToString()}\n");
                 }
                 else if (a != null)
                 {
-                    Console.WriteLine($"{i + 1}. {a.Name} - {a.Info}  - 레벨제한 : {a.WearableLevel} - 방어력 : {a.DefPlus} - 속도감소 : {a.SpeedMinus} - 가격 : {a.Price} G\n");
+                    Console.WriteLine($"{i + 1}. {a.ToString()}\n");
                 }
                 else if (p != null)
                 {
-                    Console.WriteLine($"{i + 1}. {item.Name} - {item.Info} - 가격 : {item.Price} G\n");
+                    Console.WriteLine($"{i + 1}. {p.ToString()}\n");
                 }
                 else
                 {

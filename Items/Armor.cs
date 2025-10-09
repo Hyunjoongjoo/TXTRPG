@@ -21,10 +21,12 @@ namespace TXTRPG
             Type = type;
 
         }
+        //마지막에 되서야 사용 안된걸 알게됨..
         public override string ToString()
         {
             return ($"{Name} - {Info} - 레벨제한 : {WearableLevel} - 방어력 : {DefPlus} - 속도감소 : {SpeedMinus} - 가격 : {Price} G");
         }
+        //장비 착용에 따라 증가되는 능력치
         public void Equip(Player player)
         {
             player.IncreaseDef(DefPlus);
