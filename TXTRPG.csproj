@@ -52,7 +52,7 @@
     <Compile Include="Manager\GameManager.cs" />
     <Compile Include="Interfaces\IItem.cs" />
     <Compile Include="Interfaces\IMap.cs" />
-    <Compile Include="Characters\Inventory.cs" />
+    <Compile Include="Items\Inventory.cs" />
     <Compile Include="Items\Item.cs" />
     <Compile Include="Enums\ItemEnums.cs" />
     <Compile Include="Maps\Map.cs" />

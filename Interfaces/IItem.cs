@@ -9,8 +9,7 @@ namespace TXTRPG
     public interface IQuantity
     {
         int Quantity { get; set; }
-        int MaxQuantity { get; }
-    }
+}
     public interface IWearableLevel
     {
         int WearableLevel { get; }

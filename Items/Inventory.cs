@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Policy;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace TXTRPG
 {
-    //플레이어에서 분리함
+    //플레이어에서 분리함(분리해야지했는데 깜빡하고 안함)
     public class Inventory
     {
         private Player player;
@@ -26,16 +27,21 @@ namespace TXTRPG
             List<Potion> potions = new List<Potion>();
             foreach (Item item in items.Values)
             {
-                Potion potion = item as Potion;
-                if (potion != null && potion.Quantity > 0)
-                {
-                    potions.Add(potion);
-                }
+                if (item is Potion p && p.Quantity > 0)
+                    potions.Add(p);
             }
-            //포션 선택 UI
+
+            if (potions.Count == 0)
+            {
+                Console.Clear();
+                Console.WriteLine("사용 가능한 포션이 없습니다!");
+                Console.WriteLine("\nPress the button");
+                Console.ReadKey(true);
+                return false;
+            }
+
             Console.Clear();
             Console.WriteLine("*** 사용 가능한 포션 목록 ***\n");
-
             for (int i = 0; i < potions.Count; i++)
             {
                 Potion p = potions[i];
@@ -46,51 +52,54 @@ namespace TXTRPG
             Console.Write("\n사용할 포션 번호를 입력하세요: ");
             string input = Console.ReadLine();
 
-            if (!int.TryParse(input, out int choice))
+            if (!int.TryParse(input, out int choice) || choice < 0 || choice > potions.Count)
             {
                 GameManager.InvalidInput();
                 return false;
             }
+            if (choice == 0) return false;
 
-            if (choice == 0)
-            {
-                Console.Clear();
-                Console.WriteLine("포션 사용을 취소했습니다.");
-                return false;
-            }
-
-            if (choice < 1 || choice > potions.Count)
-            {
-                GameManager.InvalidInput();
-                return false;
-            }
-
-            //선택된 포션 사용
             Potion selectedPotion = potions[choice - 1];
-            int beforeQuantity = selectedPotion.Quantity;
-            selectedPotion.Use(player);
-
             bool used = selectedPotion.Use(player);
-            if (!used)
-            {
-                return false; // 턴 유지
-            }
-            //수량이 0이면 인벤토리에서 제거
-            if (selectedPotion.Quantity <= 0 && beforeQuantity > 0)
+
+            if (used && selectedPotion.Quantity <= 0)
             {
                 items.Remove(selectedPotion.Name);
                 itemList.Remove(selectedPotion);
             }
-            return true;
+
+            return used;
         }
         //인벤토리에 아이템 추가,제거
         public void AddItem(Item item)
         {
-            if (item is IQuantity qItem)
+            if (item is IQuantity itemQuan)
             {
                 if (items.ContainsKey(item.Name))
                 {
-                    ((IQuantity)items[item.Name]).Quantity += qItem.Quantity;
+                    IQuantity existing = (IQuantity)Items[item.Name];
+                    int addQuantity = itemQuan.Quantity;
+                    int newQuantity = existing.Quantity + addQuantity;
+
+                    //상한선 적용
+                    if (item is Potion)
+                    {
+                        if (newQuantity > Potion.MaxQuantity)
+                        {
+                            existing.Quantity = Potion.MaxQuantity;
+                            Console.WriteLine($"\n'{item.Name}은 최대 {Potion.MaxQuantity}개까지만 보유할 수 있습니다!");
+                            Console.WriteLine("\nPress the button");
+                            Console.ReadKey(true);
+                        }
+                        else
+                        {
+                            existing.Quantity = newQuantity;
+                        }
+                    }
+                    else
+                    {
+                        existing.Quantity = newQuantity;
+                    }
                 }
                 else
                 {
@@ -98,7 +107,7 @@ namespace TXTRPG
                     itemList.AddLast(item);
                 }
             }
-            else
+            else //IQuantity가 아닌 장비류
             {
                 if (!items.ContainsKey(item.Name))
                 {
@@ -109,9 +118,9 @@ namespace TXTRPG
         }
         public void RemoveItem(Item item)
         {
-            if (item is IQuantity qItem)
+            if (item is IQuantity itemQuan)
             {
-                if (qItem.Quantity <= 0 && items.ContainsKey(item.Name))
+                if (itemQuan.Quantity <= 0 && items.ContainsKey(item.Name))
                 {
                     items.Remove(item.Name);
                     itemList.Remove(item);
@@ -139,12 +148,12 @@ namespace TXTRPG
                     continue;
                 }
 
-                if (item is IQuantity qItem)
+                if (item is IQuantity itemQuan)
                 {
                     if (itemCounts.ContainsKey(item.Name))
-                        itemCounts[item.Name] += qItem.Quantity;
+                        itemCounts[item.Name] += itemQuan.Quantity;
                     else
-                        itemCounts[item.Name] = qItem.Quantity;
+                        itemCounts[item.Name] = itemQuan.Quantity;
                 }
                 else
                 {

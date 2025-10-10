@@ -183,8 +183,6 @@ namespace TXTRPG
                         bool used = player.Inventory.UseItem();
                         if (!used)
                         {
-                            Console.WriteLine("\nPress the button");
-                            Console.ReadKey(true);
                             continue;
                         }   
                         return true;

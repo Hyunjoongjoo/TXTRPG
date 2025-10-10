@@ -234,7 +234,7 @@ namespace TXTRPG
 
                 //인벤토리에서 제거
                 Inventory.Items.Remove(itemName);
-                Inventory.ItemList.Remove(item);//이걸 깜빡함..
+                Inventory.ItemList.Remove(item);
 
                 Console.WriteLine($"\n{weapon.Name} 장착 완료!");
                 Console.WriteLine("\nPress the button");

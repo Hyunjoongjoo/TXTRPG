@@ -9,11 +9,12 @@ namespace TXTRPG
     public class Potion : Item, IUsable , IQuantity
     {
         public int Quantity { get; set; }
-        public int MaxQuantity { get; private set; } = 99; //최대갯수
+        public const int MaxQuantity = 99; //최대갯수
         public float HealPercent { get; private set; } //회복 비율
         public Potion(string name, string info, int price, float healPercent) : base(name, info, price)
         {
             HealPercent = healPercent;
+            Quantity = 1;
         }
         public override string ToString()
         {
@@ -26,9 +27,11 @@ namespace TXTRPG
             {
                 Console.Clear();
                 Console.WriteLine("현재 체력이 이미 최대입니다. 포션을 사용할 수 없습니다!");
+                Console.WriteLine("\nPress the button");
+                Console.ReadKey(true);
                 return false;
             }
-            if (Quantity > 0)
+            if (Quantity > 0)//수량이1개 이상있을때
             {
                 int healAmount = (int)(player.MaxHp * HealPercent);
                 player.Heal(healAmount);  
@@ -39,7 +42,6 @@ namespace TXTRPG
             }
             else
             {
-                Console.WriteLine("사용 가능한 포션이 없습니다!");
                 return false;
             }
         }

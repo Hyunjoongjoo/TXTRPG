@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace TXTRPG
 {
+    //아이템 리스트 관리
     public static class ItemRepository
     {
         public static List<Weapon> WeaponList { get; private set; }

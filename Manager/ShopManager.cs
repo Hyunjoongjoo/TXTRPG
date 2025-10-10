@@ -111,28 +111,7 @@ namespace TXTRPG
 
                 for (int i = 0; i < itemList.Count; i++)
                 {
-                    T item = itemList[i]; //T 형 아이템
-                                          //각 타입으로 변환
-                    Weapon w = item as Weapon;
-                    Armor a = item as Armor;
-                    Potion p = item as Potion;
-                    //타입에 따라
-                    if (w != null)
-                    {
-                        Console.WriteLine($"{i + 1}. {w.ToString()}\n");
-                    }
-                    else if (a != null)
-                    {
-                        Console.WriteLine($"{i + 1}. {a.ToString()}\n");
-                    }
-                    else if (p != null)
-                    {
-                        Console.WriteLine($"{i + 1}. {p.ToString()}\n");
-                    }
-                    else
-                    {
-                        Console.WriteLine($"{i + 1}. {item.Name} - {item.Info} - 가격 : {item.Price} G\n");
-                    }
+                    Console.WriteLine($"{i + 1}. {itemList[i]}\n");
                 }
 
                 Console.WriteLine("0. 뒤로");
@@ -162,50 +141,86 @@ namespace TXTRPG
 
                 T temp = itemList[choice - 1];
                 //같은 이름의 장비는 구매불가,착용 중인 무기 포함
-                if (!(temp is Potion) && player.Inventory.Items.ContainsKey(temp.Name) || (player.WeaponEqip.Name == temp.Name) || (player.ArmorEqip.Name == temp.Name))
+                if ((!(temp is Potion) && player.Inventory.Items.ContainsKey(temp.Name)) || (player.WeaponEqip.Name == temp.Name) || (player.ArmorEqip.Name == temp.Name))
                 {
                     Console.WriteLine("\n이미 소유 중인 장비입니다!");
                     Console.WriteLine("\nPress the button");
                     Console.ReadKey(true);
                     continue;
                 }
-                if (!player.SpendGold(temp.Price))
+                if (temp is Potion potion)
                 {
-                    Console.WriteLine("\n골드가 부족합니다.");
-                    Console.WriteLine("\nPress the button");
-                    Console.ReadKey(true);
-                    continue;
-                }
-                // 새 인스턴스를 생성해서 플레이어 인벤토리에 추가
-                Item boughtItem;
-                if (temp is Weapon weapon)
-                {
-                    boughtItem = new Weapon(weapon.Name, weapon.Info, weapon.WearableLevel, weapon.AttPlus, weapon.SpeedMinus, weapon.Price, weapon.Type);
-                }
-                else if (temp is Armor armor)
-                {
-                    boughtItem = new Armor(armor.Name, armor.Info, armor.WearableLevel, armor.DefPlus, armor.SpeedMinus, armor.Price, armor.Type);
-                }
-                else if (temp is Potion potion)
-                {
-                    boughtItem = new Potion(potion.Name, potion.Info, potion.Price, potion.HealPercent)
+                    // 현재 보유 수량
+                    int current = 0;
+                    if (player.Inventory.HasItem(potion.Name))
+                        current = ((Potion)player.Inventory.GetItem(potion.Name)).Quantity;
+
+                    if (current >= Potion.MaxQuantity)
                     {
-                        Quantity = 1
-                    };
-                }
-                else
-                {
-                    Console.WriteLine("잘못된 아이템 타입입니다.");
+                        Console.WriteLine($"\n이미 '{potion.Name}'이(가) 최대 보유량({Potion.MaxQuantity})입니다!");
+                        Console.WriteLine("\nPress the button");
+                        Console.ReadKey(true);
+                        continue;
+                    }
+
+                    Console.Write($"\n몇 개를 구매하시겠습니까? ");
+                    if (!int.TryParse(Console.ReadLine(), out int quantity) || quantity <= 0)
+                    {
+                        Console.WriteLine("\n잘못된 수량입니다.");
+                        Console.WriteLine("\nPress the button");
+                        Console.ReadKey(true);
+                        continue; //여기서 바로 루프 재시작 → 금액 차감 없음
+                    }
+
+                    // 상한선 조정
+                    if (current + quantity > Potion.MaxQuantity)
+                    {
+                        quantity = Potion.MaxQuantity - current;
+                        Console.WriteLine($"\n{Potion.MaxQuantity}개까지만 구매할 수 있습니다. ({quantity}개로 조정됨)");
+                        Console.WriteLine("\nPress the button");
+                        Console.ReadKey(true);
+                        if (quantity <= 0) continue;
+                    }
+                    // 총 가격 계산
+                    int totalPrice = temp.Price * quantity;
+                    if (!player.SpendGold(totalPrice))
+                    {
+                        Console.WriteLine($"\n골드가 부족합니다! (필요: {totalPrice}G, 현재: {player.Gold}G)");
+                        Console.WriteLine("\nPress the button");
+                        Console.ReadKey(true);
+                        continue;
+                    }
+                    // 새 인스턴스를 생성해서 플레이어 인벤토리에 추가
+                    Item boughtItem;
+                    if (temp is Weapon w)
+                    {
+                        boughtItem = new Weapon(w.Name, w.Info, w.WearableLevel, w.AttPlus, w.SpeedMinus, w.Price, w.Type);
+                    }
+                    else if (temp is Armor a)
+                    {
+                        boughtItem = new Armor(a.Name, a.Info, a.WearableLevel, a.DefPlus, a.SpeedMinus, a.Price, a.Type);
+                    }
+                    else if (temp is Potion p)
+                    {
+                        boughtItem = new Potion(p.Name, p.Info, p.Price, p.HealPercent)
+                        {
+                            Quantity = quantity
+                        };
+                    }
+                    else
+                    {
+                        Console.WriteLine("잘못된 아이템 타입입니다.");
+                        Console.WriteLine("\nPress the button");
+                        Console.ReadKey(true);
+                        return;
+                    }
+                    //포션만 수량 누적
+                    player.Inventory.AddItem(boughtItem);
+                    Console.WriteLine($"\n'{boughtItem.Name}' 구매 완료!");
+                    Console.WriteLine($"\n남은 골드 : {player.Gold} G");
                     Console.WriteLine("\nPress the button");
                     Console.ReadKey(true);
-                    return;
                 }
-                //포션만 수량 누적
-                player.Inventory.AddItem(boughtItem);
-                Console.WriteLine($"\n'{boughtItem.Name}' 구매 완료!");
-                Console.WriteLine($"\n남은 골드 : {player.Gold} G");
-                Console.WriteLine("\nPress the button");
-                Console.ReadKey(true);
             }
         }
 
@@ -237,7 +252,7 @@ namespace TXTRPG
                 for (int i = 0; i < inventoryItems.Count; i++)
                 {
                     var item = inventoryItems[i];
-                    Potion potionQuan = item as Potion;
+                    Potion potionQuan = item as Potion;//포션타입으로 변경된다면
 
                     //xN개로 표시
                     if (potionQuan != null)
