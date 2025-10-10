@@ -469,15 +469,11 @@ namespace TXTRPG
             if (GameManager.GetRandom().NextFix(1, 3) == 3)
             {
                 Console.WriteLine("도망 성공! 마을로 돌아갑니다.");
-                Console.WriteLine("\nPress the button");
-                Console.ReadKey(true);
                 return true;
             }
             else
             {
                 Console.WriteLine("도망 실패! 몬스터에게 턴이 넘어갑니다.");
-                Console.WriteLine("\nPress the button");
-                Console.ReadKey(true);
                 return false;
             }
         }

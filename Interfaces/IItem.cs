@@ -17,7 +17,7 @@ namespace TXTRPG
     }
     public interface IUsable
     {
-        void Use(Player player);
+        bool Use(Player player);
     }
     public interface IEquippable
     {

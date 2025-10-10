@@ -13,20 +13,19 @@ namespace TXTRPG
         private Player player; 
         private Monster monster;
         private Village village;//도망 성공시 돌아갈 마을
-        private bool escape;//도망의 성공 여부
         private VillageManager villageManager;//도망,패배시 마을로 복귀처리용 
 
         public BattleManager(Player player, Monster monster, VillageManager villageManager)
         {
             this.player = player;
             this.monster = monster;
-            this.escape = false;
             this.villageManager = villageManager;
         }
 
-        public void StartBattleGround(Player player)
+        public bool StartBattleGround(Player player)
         {
             bool isBattling = true;
+            bool escaped = false;
 
             while (isBattling)
             {
@@ -43,22 +42,22 @@ namespace TXTRPG
                 switch (Console.ReadKey(true).Key)
                 {
                     case ConsoleKey.D1:
-                        StartBattle(new Slime("슬라임"));
+                        escaped =StartBattle(new Slime("슬라임"));
                         break;
                     case ConsoleKey.D2:
-                        StartBattle(new Goblin("고블린"));
+                        escaped =StartBattle(new Goblin("고블린"));
                         break;
                     case ConsoleKey.D3:
-                        StartBattle(new Orc("오크"));
+                        escaped = StartBattle(new Orc("오크"));
                         break;
                     case ConsoleKey.D4:
-                        StartBattle(new Golem("골렘"));
+                        escaped = StartBattle(new Golem("골렘"));
                         break;
                     case ConsoleKey.D5:
-                        StartBattle(new Doppelganger("도플갱어"));
+                        escaped = StartBattle(new Doppelganger("도플갱어"));
                         break;
                     case ConsoleKey.D6:
-                        StartBattle(new Dragon("드래곤"));
+                        escaped = StartBattle(new Dragon("드래곤"));
                         break;
                     case ConsoleKey.D0:
                         Console.Clear();
@@ -68,17 +67,24 @@ namespace TXTRPG
                         GameManager.InvalidInput();
                         break;
                 }
+                if (escaped)
+                {
+                    isBattling = false;
+                }
+
             }
+            return escaped;
         }
-        public void StartBattle(Monster monster)
+        public bool StartBattle(Monster monster)
         {
+            bool escape = false; //도망 성공 여부
             Console.Clear();
             Console.WriteLine($"전투 시작! \n\n적 : {monster.Name} Lv {monster.Level}");
             Console.WriteLine($"\n적의 체력 : {monster.Hp}");
             Console.WriteLine($"\n플레이어 속도 : {player.Speed}, 적 속도 : {monster.Speed}");
             Console.WriteLine("\nPress the button");
             Console.ReadKey(true);
-            escape = false; //도망 성공 여부 초기화
+            
             while (player.Hp > 0 && monster.Hp > 0 && !escape)
             {
                 //턴 순서 결정 (속도 비교)
@@ -92,7 +98,7 @@ namespace TXTRPG
                         if (escape)
                         {
                             villageManager.EnterVillage(player);
-                            return;
+                            return true;
                         }
 
                         if (monster.Hp <= 0)
@@ -102,7 +108,7 @@ namespace TXTRPG
                             player.GetReward(monster);
                             Console.WriteLine("\nPress the button");
                             Console.ReadKey(true);
-                            return;
+                            return false;
                         }
                     }
 
@@ -113,12 +119,12 @@ namespace TXTRPG
                         if (player.Hp <= 0)
                         {
                             Console.Clear();
-                            Console.WriteLine($"{player.Name}가 패배했습니다...");
+                            Console.WriteLine($"{player.Name}가 패배했습니다...\n\n플레이어가 마을에서 깨어납니다.");
                             Console.WriteLine("\nPress the button");
                             Console.ReadKey(true);
                             player.Heal(1);
                             villageManager.EnterVillage(player);
-                            return;
+                            return true;
                         }
                     }
                 }
@@ -129,11 +135,11 @@ namespace TXTRPG
                     if (player.Hp <= 0)
                     {
                         Console.Clear();
-                        Console.WriteLine($"{player.Name}가 패배했습니다...\n플레이어가 마을에서 깨어납니다.");
+                        Console.WriteLine($"{player.Name}가 패배했습니다...\n\n플레이어가 마을에서 깨어납니다.");
                         Console.WriteLine("\nPress the button");
                         Console.ReadKey(true);
                         villageManager.EnterVillage(player);
-                        return;
+                        return true;
                     }
 
                     // 그다음 플레이어 턴
@@ -143,7 +149,7 @@ namespace TXTRPG
                         if (escape)
                         {
                             villageManager.EnterVillage(player);
-                            return;
+                            return true;
                         }
 
                         if (monster.Hp <= 0)
@@ -153,16 +159,16 @@ namespace TXTRPG
                             player.GetReward(monster);
                             Console.WriteLine("\nPress the button");
                             Console.ReadKey(true);
-                            return;
+                            return false;
                         }
                     }
                 }
             }
+            return false;
         }
         private bool PlayerTurn(Monster monster, ref bool escape)
         {
-            bool invalidInput = true;
-            while (invalidInput)
+            while (true)
             {
                 Console.Clear();
                 ShowInfo(monster);
@@ -171,42 +177,29 @@ namespace TXTRPG
                 {
                     case ConsoleKey.D1:
                         player.Attack(monster);
-                        invalidInput = false;
                         return true;
 
                     case ConsoleKey.D2:
-                        Potion potion = null;
-                        foreach (Item item in player.Inventory.Items.Values)
+                        bool used = player.Inventory.UseItem();
+                        if (!used)
                         {
-                            if (item is Potion p && p.Quantity > 0)
-                            {
-                                potion = p;
-                                break;
-                            }
-                        }
-                        if (potion != null)
-                        {
-                            player.Inventory.UseItem(potion.Name);
+                            Console.WriteLine("\nPress the button");
                             Console.ReadKey(true);
-                            invalidInput = false;
-                            return true;
-                        }
-                        else
-                        {
-                            break;
-                        }
+                            continue;
+                        }   
+                        return true;
 
                     case ConsoleKey.D3:
                         escape = player.TryEscape();
-                        invalidInput = false;
+                        Console.WriteLine("\nPress the button");
+                        Console.ReadKey(true);
                         return true;
 
                     default:
                         GameManager.InvalidInput();
-                        break;
+                        continue;
                 }
             }
-         return false;
         }
 
         private void MonsterTurn(Monster monster)

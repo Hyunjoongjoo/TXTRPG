@@ -19,16 +19,14 @@ namespace TXTRPG
         {
             return ($"{Name} - {Info} - 회복량 : {HealPercent * 100}% - 가격 : {Price} G");
         }
-        public void Use(Player player)
+        public bool Use(Player player)
         {
             //최대 체력일때 사용 불가
             if (player.Hp >= player.MaxHp)
             {
                 Console.Clear();
                 Console.WriteLine("현재 체력이 이미 최대입니다. 포션을 사용할 수 없습니다!");
-                Console.WriteLine("\nPress the button");
-                Console.ReadKey(true);
-                return;
+                return false;
             }
             if (Quantity > 0)
             {
@@ -37,14 +35,12 @@ namespace TXTRPG
                 Quantity--;
                 Console.WriteLine($"{Name}을(를) 사용하여 {healAmount}만큼 체력 회복!");
                 Console.WriteLine($"\n현재 체력 : {player.Hp}");
-                Console.WriteLine("\nPress the button");
-                Console.ReadKey(true);
+                return true;
             }
             else
             {
                 Console.WriteLine("사용 가능한 포션이 없습니다!");
-                Console.WriteLine("\nPress the button");
-                Console.ReadKey(true);
+                return false;
             }
         }
     }

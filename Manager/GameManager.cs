@@ -54,7 +54,12 @@ namespace TXTRPG
                 {
                     case ConsoleKey.D1:
                         {
-                            battleManager.StartBattleGround(player);
+                            bool escaped = battleManager.StartBattleGround(player);
+                            if (escaped)
+                            {
+                                break;
+                            }
+
                             break;
                         }
                     case ConsoleKey.D2:
