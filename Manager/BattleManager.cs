@@ -176,7 +176,7 @@ namespace TXTRPG
 
                     case ConsoleKey.D2:
                         Potion potion = null;
-                        foreach (Item item in player.InventoryDic.Values)
+                        foreach (Item item in player.Inventory.Items.Values)
                         {
                             if (item is Potion p && p.Quantity > 0)
                             {
@@ -186,7 +186,7 @@ namespace TXTRPG
                         }
                         if (potion != null)
                         {
-                            player.UseItem(potion);
+                            player.Inventory.UseItem(potion.Name);
                             Console.ReadKey(true);
                             invalidInput = false;
                             return true;

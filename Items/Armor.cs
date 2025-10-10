@@ -39,7 +39,7 @@ namespace TXTRPG
     }
     public class NoneArmor : Armor
     {
-        public NoneArmor()
-            : base("없음", "방어구를 장착하지 않음", 0, 0, 0, 0, ArmorType.None) { }
+        public static readonly NoneArmor noneArmor = new NoneArmor();
+        private NoneArmor() : base("없음", "방어구를 장착하지 않음", 0, 0, 0, 0, ArmorType.None) { }
     }
 }

@@ -11,8 +11,7 @@ namespace TXTRPG
         public int Exp { get; private set; } = 0;
         public int MaxExp { get; private set; } = 10; // 클리어 확인용
         public int Gold { get; private set; } = 10000; // 상점 확인용
-        public Dictionary<string, Item> InventoryDic { get; private set; } //검색용 딕셔너리
-        public LinkedList<Item> InventoryList { get; private set; } //출력용 링크드리스트
+        public Inventory Inventory { get; private set; } //결국 따로 분리함
         public Armor ArmorEqip { get; private set; }
         public Weapon WeaponEqip { get; private set; }
         private bool gameClear = false; //게임 클리어 여부 확인
@@ -22,8 +21,10 @@ namespace TXTRPG
             get
             {
                 int totalAtt = BaseAtt;
-                if (WeaponEqip != null)
+                if (WeaponEqip != NoneWeapon.noneWeapon)
+                {
                     totalAtt += WeaponEqip.AttPlus;
+                }
                 return totalAtt;
             }
         }
@@ -32,8 +33,10 @@ namespace TXTRPG
             get
             {
                 int totalDef = BaseDef;
-                if (ArmorEqip != null)
+                if (ArmorEqip != NoneArmor.noneArmor)
+                {
                     totalDef += ArmorEqip.DefPlus;
+                }
                 return totalDef;
             }
         }
@@ -42,10 +45,14 @@ namespace TXTRPG
             get
             {
                 int totalSpeed = BaseSpeed;
-                if (WeaponEqip != null)
+                if (WeaponEqip != NoneWeapon.noneWeapon)
+                {
                     totalSpeed -= WeaponEqip.SpeedMinus;
-                if (ArmorEqip != null)
+                }
+                if (ArmorEqip != NoneArmor.noneArmor)
+                {
                     totalSpeed -= ArmorEqip.SpeedMinus;
+                }
                 return totalSpeed;
             }
         }
@@ -59,13 +66,15 @@ namespace TXTRPG
             CriChance = 0.2f;
             CriMultiplier = 1.3f;
             //인벤초기화
-            InventoryDic = new Dictionary<string, Item>();
-            InventoryList = new LinkedList<Item>();
+            Inventory = new Inventory(this);
             //빈장비로 시작
-            WeaponEqip = new NoneWeapon();
-            ArmorEqip = new NoneArmor();
+            WeaponEqip = NoneWeapon.noneWeapon;
+            ArmorEqip = NoneArmor.noneArmor;
         }
-
+        public void GainGold(int amount) { Gold += amount; }
+        public void IncreaseAtt(int amount) { BaseAtt += amount; }
+        public void IncreaseDef(int amount) { BaseDef += amount; }
+        public void DecreaseSpeed(int amount) { BaseSpeed -= amount; }
         public bool SpendGold(int amount)
         {
             if (Gold >= amount)
@@ -74,74 +83,6 @@ namespace TXTRPG
                 return true;
             }
             return false;
-        }
-        public void GainGold(int amount) { Gold += amount; }
-        public void IncreaseAtt(int amount) { BaseAtt += amount; }
-        public void IncreaseDef(int amount) { BaseDef += amount; }
-        public void DecreaseSpeed(int amount) { BaseSpeed -= amount; }
-        private void AddToInventory(Item item)
-        {
-            // 포션만 스택(Quantity) 처리
-            if (item is Potion p)
-            {
-                if (InventoryDic.ContainsKey(p.Name))
-                {
-                    ((Potion)InventoryDic[p.Name]).Quantity += Math.Max(1, p.Quantity);
-                }
-                else
-                {
-                    if (p.Quantity <= 0) p.Quantity = 1; // 안전장치
-                    InventoryDic[p.Name] = p;
-                    InventoryList.AddLast(p);
-                }
-            }
-            else
-            {
-                // 무기/방어구 등은 이름 1개만(딕셔너리 특성) — 이미 있으면 추가 안 함
-                if (!InventoryDic.ContainsKey(item.Name))
-                {
-                    InventoryDic[item.Name] = item;
-                    InventoryList.AddLast(item);
-                }
-            }
-        }
-
-        private void RemoveFromInventory(Item item)
-        {
-            if (item == null) return;
-
-            if (item is Potion p)
-            {
-                // 포션의 경우 Quantity가 0 이하면 제거
-                if (InventoryDic.ContainsKey(p.Name))
-                {
-                    var invPot = (Potion)InventoryDic[p.Name];
-                    if (invPot.Quantity <= 0)
-                    {
-                        InventoryDic.Remove(p.Name);
-                        InventoryList.Remove(invPot);
-                    }
-                }
-            }
-            else
-            {
-                if (InventoryDic.ContainsKey(item.Name))
-                {
-                    var invItem = InventoryDic[item.Name];
-                    InventoryDic.Remove(item.Name);
-                    InventoryList.Remove(invItem);
-                }
-            }
-        }
-        //포션사용
-        public void UseItem(Item item)
-        {
-            Console.Clear();
-            if (item is IUsable usable)
-            {
-                usable.Use(this);
-                RemoveItem(item);
-            }
         }
         //보상
         public void GetReward(Monster monster)
@@ -183,32 +124,7 @@ namespace TXTRPG
                 Console.WriteLine("장착 방어구 : " + (ArmorEqip != null ? ArmorEqip.Name : "없음"));
                 Console.WriteLine("\n\n*** 인벤토리 ***\n");
 
-                Dictionary<string, int> itemCounts = new Dictionary<string, int>();
-                foreach (var item in InventoryList)
-                {
-                    if (item is IQuantity qItem)
-                    {
-                        if (itemCounts.ContainsKey(item.Name))
-                            itemCounts[item.Name] += qItem.Quantity;
-                        else
-                            itemCounts[item.Name] = qItem.Quantity;
-                    }
-                    else
-                    {
-                        if (itemCounts.ContainsKey(item.Name))
-                            itemCounts[item.Name]++;
-                        else
-                            itemCounts[item.Name] = 1;
-                    }
-                }
-
-                foreach (var item in itemCounts)
-                {
-                    if (item.Value > 1)
-                        Console.WriteLine($"- {item.Key} x{item.Value}");
-                    else
-                        Console.WriteLine($"- {item.Key}");
-                }
+                Inventory.ShowInventory();
 
                 Console.WriteLine("\n1. 장비 착용");
                 Console.WriteLine("\n2. 장비 해제");
@@ -272,21 +188,19 @@ namespace TXTRPG
         //장비 착용
         public void EqipItem(string itemName)
         {
-            if (!InventoryDic.ContainsKey(itemName))
+            if (!Inventory.HasItem(itemName))
             {
-                Console.Clear();
                 Console.WriteLine($"\n{itemName}은 인벤토리에 없습니다.");
                 Console.WriteLine("\nPress the button");
                 Console.ReadKey(true);
                 return;
             }
 
-            Item item = InventoryDic[itemName];
+            Item item = Inventory.GetItem(itemName);
 
             // 레벨 제한 확인
             if (item is IWearableLevel wl && Level < wl.WearableLevel)
             {
-                Console.Clear();
                 Console.WriteLine($"\n레벨이 부족합니다! (필요 레벨: {wl.WearableLevel})");
                 Console.WriteLine("\nPress the button");
                 Console.ReadKey(true);
@@ -298,30 +212,32 @@ namespace TXTRPG
             {
                 if (!(WeaponEqip is NoneWeapon))
                 {
-                    var prev = WeaponEqip;
-                    prev.Unequip(this);
+                    Weapon prevWeapon = WeaponEqip;
+                    prevWeapon.Unequip(this);
 
-                    if (InventoryDic.ContainsKey(prev.Name))
+
+                    if (Inventory.HasItem(prevWeapon.Name))
                     {
-                        if (prev is IQuantity qPrev)
-                            ((IQuantity)InventoryDic[prev.Name]).Quantity += qPrev.Quantity;
+                        if (prevWeapon is IQuantity PrevQuan)
+                        {
+                            ((IQuantity)Inventory.GetItem(prevWeapon.Name)).Quantity += PrevQuan.Quantity;
+                        }
                     }
                     else
                     {
-                        InventoryDic[prev.Name] = prev;
-                        InventoryList.AddLast(prev);
+                        Inventory.Items[prevWeapon.Name] = prevWeapon;
+                        Inventory.ItemList.AddLast(prevWeapon);
                     }
-
-                    Console.WriteLine($"\n착용 중이던 무기 {prev.Name}을(를) 해제했습니다.");
+                    Console.WriteLine($"\n착용 중이던 무기 {prevWeapon.Name} 장착 해제!");
                 }
                 //새 무기 장착
                 WeaponEqip = weapon;
                 weapon.Equip(this);
 
                 //인벤토리에서 제거
-                InventoryDic.Remove(itemName);
+                Inventory.Items.Remove(itemName);
+                Inventory.ItemList.Remove(item);//이걸 깜빡함..
 
-                Console.Clear();
                 Console.WriteLine($"\n{weapon.Name} 장착 완료!");
                 Console.WriteLine("\nPress the button");
                 Console.ReadKey(true);
@@ -333,35 +249,35 @@ namespace TXTRPG
             {
                 if (!(ArmorEqip is NoneArmor))
                 {
-                    var prev = ArmorEqip;
-                    prev.Unequip(this);
+                    Armor prevArmor = ArmorEqip;
+                    prevArmor.Unequip(this);
 
-                    if (InventoryDic.ContainsKey(prev.Name))
+                    if (Inventory.HasItem(prevArmor.Name))
                     {
-                        if (prev is IQuantity qPrev)
-                            ((IQuantity)InventoryDic[prev.Name]).Quantity += qPrev.Quantity;
+                        if (prevArmor is IQuantity PrevQuan)
+                        {
+                            ((IQuantity)Inventory.GetItem(prevArmor.Name)).Quantity += PrevQuan.Quantity;
+                        }
                     }
                     else
                     {
-                        InventoryDic[prev.Name] = prev;
-                        InventoryList.AddLast(prev);
+                        Inventory.Items[prevArmor.Name] = prevArmor;
+                        Inventory.ItemList.AddLast(prevArmor);
                     }
-
-                    Console.WriteLine($"\n착용 중이던 방어구 {prev.Name}을(를) 해제했습니다.");
+                    Console.WriteLine($"\n착용 중이던 방어구 {prevArmor.Name} 장착 해제!");
                 }
 
                 ArmorEqip = armor;
                 armor.Equip(this);
-                InventoryDic.Remove(itemName);
+                Inventory.Items.Remove(itemName);
+                Inventory.ItemList.Remove(item);
 
-                Console.Clear();
                 Console.WriteLine($"\n{armor.Name} 장착 완료!");
                 Console.WriteLine("\nPress the button");
                 Console.ReadKey(true);
                 return;
             }
 
-            Console.Clear();
             Console.WriteLine($"\n{itemName}은 착용할 수 없는 아이템입니다.");
             Console.WriteLine("\nPress the button");
             Console.ReadKey(true);
@@ -372,27 +288,27 @@ namespace TXTRPG
             // 무기 해제
             if (!(WeaponEqip is NoneWeapon) && WeaponEqip.Name == itemName)
             {
-                var unequipped = WeaponEqip;
-                unequipped.Unequip(this);
-                WeaponEqip = new NoneWeapon();
+                Weapon unequipped = WeaponEqip;
+                unequipped.Unequip(this);//능력치 제거
+                WeaponEqip = NoneWeapon.noneWeapon;//빈 무기로 교체
 
-                // ✅ 새 복사본으로 인벤토리에 추가
-                var copy = new Weapon(
-                    unequipped.Name, unequipped.Info,
-                    (unequipped as Weapon).WearableLevel,
-                    (unequipped as Weapon).AttPlus,
-                    (unequipped as Weapon).SpeedMinus,
+                //복사본으로 인벤토리에 추가
+                Weapon copy = new Weapon(
+                    unequipped.Name,
+                    unequipped.Info,
+                    unequipped.WearableLevel,
+                    unequipped.AttPlus,
+                    unequipped.SpeedMinus,
                     unequipped.Price,
-                    (unequipped as Weapon).Type
+                    unequipped.Type
                 );
-
-                if (!InventoryDic.ContainsKey(copy.Name))
+                //중복방지
+                if (!Inventory.HasItem(copy.Name))
                 {
-                    InventoryDic[copy.Name] = copy;
-                    InventoryList.AddLast(copy);
+                    Inventory.Items[copy.Name] = copy;
+                    Inventory.ItemList.AddLast(copy);
                 }
 
-                Console.Clear();
                 Console.WriteLine($"\n{unequipped.Name} 착용 해제 완료!");
                 Console.WriteLine("\nPress the button");
                 Console.ReadKey(true);
@@ -401,33 +317,32 @@ namespace TXTRPG
             // 방어구 해제
             if (!(ArmorEqip is NoneArmor) && ArmorEqip.Name == itemName)
             {
-                var unequipped = ArmorEqip;
+                Armor unequipped = ArmorEqip;
                 unequipped.Unequip(this);
-                ArmorEqip = new NoneArmor();
+                ArmorEqip = NoneArmor.noneArmor;
 
-                var copy = new Armor(
-                    unequipped.Name, unequipped.Info,
-                    (unequipped as Armor).WearableLevel,
-                    (unequipped as Armor).DefPlus,
-                    (unequipped as Armor).SpeedMinus,
+                Armor copy = new Armor(
+                    unequipped.Name,
+                    unequipped.Info,
+                    unequipped.WearableLevel,
+                    unequipped.DefPlus,
+                    unequipped.SpeedMinus,
                     unequipped.Price,
-                    (unequipped as Armor).Type
+                    unequipped.Type
                 );
 
-                if (!InventoryDic.ContainsKey(copy.Name))
+                if (!Inventory.HasItem(copy.Name))
                 {
-                    InventoryDic[copy.Name] = copy;
-                    InventoryList.AddLast(copy);
+                    Inventory.Items[copy.Name] = copy;
+                    Inventory.ItemList.AddLast(copy);
                 }
 
-                Console.Clear();
                 Console.WriteLine($"\n{unequipped.Name} 착용 해제 완료!");
                 Console.WriteLine("\nPress the button");
                 Console.ReadKey(true);
                 return;
             }
 
-            Console.Clear();
             Console.WriteLine($"\n{itemName}은(는) 현재 장착 중이 아닙니다.");
             Console.WriteLine("\nPress the button");
             Console.ReadKey(true);
@@ -441,7 +356,15 @@ namespace TXTRPG
                 Console.Clear();
                 Console.WriteLine("*** 착용 가능한 장비 목록 ***\n");
 
-                var equipables = InventoryDic.Values.OfType<IEquippable>().ToList();
+                List<IEquippable> equipables = new List<IEquippable>();
+
+                foreach (Item item in Inventory.Items.Values)
+                {
+                    if (item is IEquippable equippable)
+                    {
+                        equipables.Add(equippable);
+                    }
+                }
 
                 if (equipables.Count == 0)
                 {
@@ -494,7 +417,7 @@ namespace TXTRPG
                 else
                 {
                     Console.Clear();
-                    var selected = (Item)equipables[choice - 1];
+                    Item selected = (Item)equipables[choice - 1];
                     EqipItem(selected.Name);
                 }
             }
@@ -512,64 +435,33 @@ namespace TXTRPG
             {
                 case ConsoleKey.D1:
                     if (!(WeaponEqip is NoneWeapon))
+                    {
                         UneqipItem(WeaponEqip.Name);
+                    }
                     else
+                    {
                         Console.WriteLine("착용 중인 무기가 없습니다.");
+                        Console.WriteLine("\nPress the button");
+                        Console.ReadKey(true);
+                    }
                     break;
                 case ConsoleKey.D2:
                     if (!(ArmorEqip is NoneArmor))
+                    {
                         UneqipItem(ArmorEqip.Name);
+                    }
                     else
+                    {
                         Console.WriteLine("착용 중인 방어구가 없습니다.");
+                        Console.WriteLine("\nPress the button");
+                        Console.ReadKey(true);
+                    }
                     break;
                 case ConsoleKey.D0:
                     return;
                 default:
                     GameManager.InvalidInput();
                     break;
-            }
-        }
-        //인벤토리에 아이템 추가,제거
-        public void AddItem(Item item)
-        {
-            if (item is IQuantity qItem)
-            {
-                if (InventoryDic.ContainsKey(item.Name))
-                {
-                    ((IQuantity)InventoryDic[item.Name]).Quantity += qItem.Quantity;
-                }
-                else
-                {
-                    InventoryDic[item.Name] = item;
-                    InventoryList.AddLast(item);
-                }
-            }
-            else
-            {
-                if (!InventoryDic.ContainsKey(item.Name))
-                {
-                    InventoryDic[item.Name] = item;
-                    InventoryList.AddLast(item);
-                }
-            }
-        }
-        public void RemoveItem(Item item)
-        {
-            if (item is IQuantity qItem)
-            {
-                if (qItem.Quantity <= 0 && InventoryDic.ContainsKey(item.Name))
-                {
-                    InventoryDic.Remove(item.Name);
-                    InventoryList.Remove(item);
-                }
-            }
-            else
-            {
-                if (InventoryDic.ContainsKey(item.Name))
-                {
-                    InventoryDic.Remove(item.Name);
-                    InventoryList.Remove(item);
-                }
             }
         }
         //도망 성공 여부

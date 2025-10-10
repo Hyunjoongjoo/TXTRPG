@@ -118,14 +118,12 @@ namespace TXTRPG
                 }
 
                 Console.Write("\n장착할 무기를 선택하세요 (번호 입력): ");
-                if (int.TryParse(Console.ReadLine(), out int weaponChoice) &&
-                    weaponChoice >= 1 && weaponChoice <= startWeapons.Count)
+                if (int.TryParse(Console.ReadLine(), out int weaponChoice) && weaponChoice >= 1 && weaponChoice <= startWeapons.Count)
                 {
-                    var selectedWeapon = startWeapons[weaponChoice - 1];
+                    Weapon selectedWeapon = startWeapons[weaponChoice - 1];
 
                     // 인벤토리에 먼저 추가
-                    player.InventoryDic.Add(selectedWeapon.Name, selectedWeapon);//딕셔너리에 추가
-                    player.InventoryList.AddLast(selectedWeapon);//링크드리스트에 추가
+                    player.Inventory.AddItem(selectedWeapon);
 
                     // 착용
                     player.EqipItem(selectedWeapon.Name);
@@ -157,8 +155,7 @@ namespace TXTRPG
                 {
                     var selectedArmor = startArmors[armorChoice - 1];
 
-                    player.InventoryDic.Add(selectedArmor.Name, selectedArmor);
-                    player.InventoryList.AddLast(selectedArmor);
+                    player.Inventory.AddItem(selectedArmor);
 
                     player.EqipItem(selectedArmor.Name);
 
@@ -185,7 +182,7 @@ namespace TXTRPG
             {
                 Potion startPotion = new Potion(potionTemp.Name,potionTemp.Info,potionTemp.Price,potionTemp.HealPercent);
                 startPotion.Quantity = 5;
-                player.AddItem(startPotion);
+                player.Inventory.AddItem(startPotion);
             }
             Console.Clear();
             Console.WriteLine("장비 선택 완료!");

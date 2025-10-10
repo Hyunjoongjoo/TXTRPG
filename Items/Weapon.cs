@@ -38,7 +38,7 @@ namespace TXTRPG
     }
     public class NoneWeapon : Weapon
     {
-        public NoneWeapon()
-            : base("없음", "무기를 장착하지 않음", 0, 0, 0, 0, WeaponType.None) { }
+        public static readonly NoneWeapon noneWeapon = new NoneWeapon();
+        private NoneWeapon() : base("없음", "무기를 장착하지 않음", 0, 0, 0, 0, WeaponType.None) { }
     }
 }
