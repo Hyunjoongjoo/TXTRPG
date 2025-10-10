@@ -91,17 +91,17 @@ namespace TXTRPG
             int gainedExp = monster.ExpReward;
             int gainedGold = monster.GoldReward;
             Exp += monster.ExpReward;
-            Gold += monster.GoldReward;
-            while (Exp >= MaxExp)
-            {
-                Exp -= MaxExp;
-                LevelUp();
-            }
+            Gold += monster.GoldReward;            
             Console.Clear();
             Console.WriteLine($"\n전투 보상!");
             Console.WriteLine($"\n획득 경험치 : {gainedExp}");
             Console.WriteLine($"\n획득 골드 : {gainedGold} G");
             Console.WriteLine($"\n현재 플레이어가 가진 골드 : {Gold} G");
+            while (Exp >= MaxExp)
+            {
+                Exp -= MaxExp;
+                LevelUp();
+            }
         }
         //스텟,장비 확인용
         public void ShowStatus()
@@ -157,8 +157,6 @@ namespace TXTRPG
             BaseDef += 1;
             BaseSpeed += 10;
             Console.WriteLine("\n레벨업!\n\n공격력,방어력,최대 체력,공격속도가 소폭 상승합니다.");
-            Console.WriteLine("\nPress the button");
-            Console.ReadKey(true);
             if (!gameClear && Level >= 10)
             {
                 gameClear = true;
